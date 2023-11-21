@@ -60,4 +60,54 @@ public class RAWGController {
 
         return games;
     }
+
+    @GetMapping("/videogames/search")
+    public List<VideoGame> searchGamesByTitle(@RequestParam String title) throws JsonProcessingException {
+        // Call the RAWG API to search for games by title
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?search=" + title + "&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                String.class);
+        String jsonString = response.getBody();
+
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+
+        return games;
+    }
+
+    @GetMapping("/videogames/sort/price/low-to-high")
+    public List<VideoGame> listGamesByLowToHighPrice(@RequestParam(defaultValue = "10") int pageSize) throws JsonProcessingException {
+        // Call the RAWG API to get a certain number of games sorted by price (low to high)
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&ordering=added&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                String.class);
+        String jsonString = response.getBody();
+
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+
+        return games;
+    }
+
+    @GetMapping("/videogames/sort/price/high-to-low")
+    public List<VideoGame> listGamesByHighToLowPrice(@RequestParam(defaultValue = "10") int pageSize) throws JsonProcessingException {
+        // Call the RAWG API to get a certain number of games sorted by price (high to low)
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&ordering=-added&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                String.class);
+        String jsonString = response.getBody();
+
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+
+        return games;
+    }
+
+
 }
