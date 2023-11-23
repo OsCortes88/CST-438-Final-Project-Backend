@@ -62,10 +62,10 @@ public class RAWGController {
         List<Trailer> trailers = getGameTrailers(gameId);
         game.setScreenshots(screenshots);
         game.setTrailers(trailers);
+        game.setVendorSites(getVendors(gameId));
         return game;
     }
 
-    @GetMapping("/videogame/screenshots/{gameId}")
     public List<Screenshot> getGameScreenShots(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "/screenshots?page_size=10&key=" + key;
         // Call the RAWG API to get game details
@@ -82,7 +82,6 @@ public class RAWGController {
         return screenshots;
     }
 
-    @GetMapping("/videogame/trailers/{gameId}")
     public List<Trailer> getGameTrailers(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "/movies?key=" + key;
         // Call the RAWG API to get game details
@@ -97,5 +96,27 @@ public class RAWGController {
         // Map data in the json results to the object and return it
         List<Trailer> trailers = new ObjectMapper().readValue(trailersList.toString(), new TypeReference<List<Trailer>>() {});
         return trailers;
+    }
+
+    public List<String> getVendors(Integer gameId) throws JsonProcessingException {
+        String url = "https://api.rawg.io/api/games/" + gameId +  "/stores?key=" + key;
+        // Call the RAWG API to get game details
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                url,
+                String.class);
+        // Get the json response
+        String jsonString = response.getBody();
+        // Convert the json string to a json node so we can access data.
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readValue(jsonString, JsonNode.class);
+        // Move into the array with the list of stores
+        JsonNode vendorList = rootNode.get("results");
+        // Iterate through the stores and retrieve the url where we can purchase the game
+        List<String> vendors = new ArrayList<>();
+        for (int i = 0; i < vendorList.size(); i++) {
+            JsonNode vendorSite = vendorList.get(i).get("url");
+            vendors.add(vendorSite.asText());
+        }
+        return vendors;
     }
 }

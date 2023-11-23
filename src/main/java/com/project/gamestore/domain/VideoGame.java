@@ -34,6 +34,8 @@ public class VideoGame {
 
     private String esrb;
 
+    private List<String> vendorSites;
+
     public VideoGame() {
 
     }
@@ -103,5 +105,13 @@ public class VideoGame {
     @JsonProperty("esrb_rating")
     private void setEsrb(Map<String,Object> esrb) {
         this.esrb = (String) esrb.get("slug");
+    }
+
+    public List<String> getVendorSites() {
+        return vendorSites;
+    }
+
+    public void setVendorSites(List<String> vendorSites) {
+        this.vendorSites = vendorSites;
     }
 }
