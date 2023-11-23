@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,6 +27,12 @@ public class VideoGame {
     private double rating;
     @JsonProperty("playtime")
     private int playtime;
+
+    private List<Screenshot> screenshots;
+
+    private List<Trailer> trailers;
+
+    private String esrb;
 
     public VideoGame() {
 
@@ -69,5 +78,30 @@ public class VideoGame {
     }
     public void setPlaytime(int playtime) {
         this.playtime = playtime;
+    }
+
+    public List<Screenshot> getScreenshots() {
+        return screenshots;
+    }
+
+    public void setScreenshots(List<Screenshot> screenshots) {
+        this.screenshots = screenshots;
+    }
+
+    public List<Trailer> getTrailers() {
+        return trailers;
+    }
+
+    public void setTrailers(List<Trailer> trailers) {
+        this.trailers = trailers;
+    }
+
+    public String getEsrb() {
+        return esrb;
+    }
+
+    @JsonProperty("esrb_rating")
+    private void setEsrb(Map<String,Object> esrb) {
+        this.esrb = (String) esrb.get("slug");
     }
 }
