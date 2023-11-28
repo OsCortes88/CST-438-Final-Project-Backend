@@ -13,6 +13,9 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -71,8 +74,10 @@ public class RAWGController {
         // Convert the json string to a json object, so we can access data.
         JSONObject json = new JSONObject(jsonString);
         JSONArray gamesList = json.getJSONArray("results");
+  
         List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
         return games;
+    }
 
     @GetMapping("/videogame-info/{gameId}")
     // TODO: Add login verfication using JWT prinipal
@@ -155,6 +160,24 @@ public class RAWGController {
             vendors.add(vendorSite.asText());
         }
         return vendors;
+    }
+  
+  @GetMapping("/videogames/genre")
+    public List<VideoGame> listGamesByGenre(
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "") String sortBy,
+            @RequestParam String genres
+    ) throws JsonProcessingException {
+        // Call the RAWG API to get a certain number of games for a specific genre
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                String.class);
+        String jsonString = response.getBody();
 
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_in_genre;
     }
 }
