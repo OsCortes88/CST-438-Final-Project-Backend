@@ -4,11 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.gamestore.domain.Trailer;
-import com.project.gamestore.domain.Screenshot;
-import com.project.gamestore.domain.VideoGame;
+import com.project.gamestore.domain.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,9 +22,12 @@ import java.util.Map;
 @RestController
 @CrossOrigin
 public class RAWGController {
+    @Autowired
+    GenreRepository genreRepository;
     private final String key = "79fc5d7fcd144b99ade6f0aafc6e8c74";
     private RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/videogames/{size}/{page}")
+    // TODO: Add login verfication using JWT prinipal
     public List<VideoGame> ListGames(@PathVariable("size") Integer size,
                                      @PathVariable("page") Integer page) throws JsonProcessingException {
 
@@ -45,6 +47,7 @@ public class RAWGController {
     }
 
     @GetMapping("/videogame-info/{gameId}")
+    // TODO: Add login verfication using JWT prinipal
     public VideoGame gameInfo(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "?key=" + key;
         // Call the RAWG API to get game details
@@ -62,8 +65,14 @@ public class RAWGController {
         List<Trailer> trailers = getGameTrailers(gameId);
         game.setScreenshots(screenshots);
         game.setTrailers(trailers);
-        game.setVendorSites(getVendors(gameId));
+        game.setPurchaseSites(getVendors(gameId));
         return game;
+    }
+
+    @GetMapping("/genre-list")
+    // TODO: Add login verfication using JWT prinipal
+    public  List<Genre> getGenres() {
+        return  genreRepository.getGenresByPopularity();
     }
 
     public List<Screenshot> getGameScreenShots(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
