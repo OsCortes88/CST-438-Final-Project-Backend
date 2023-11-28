@@ -1,49 +1,50 @@
 package com.project.gamestore.domain;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-
+@Entity
+@Table(name = "video_game")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoGame {
+    @Id
+    @Column(name = "gameID")
     @JsonProperty("id")
-    private int id;
+    private int gameId;
     @JsonProperty("name")
     private String name;
     @JsonProperty("description")
     private String description;
     @JsonProperty("released")
     private String released;
+    @Column(name = "background_image")
     @JsonProperty("background_image")
     private String background_image;
     @JsonProperty("rating")
     private double rating;
     @JsonProperty("playtime")
     private int playtime;
-
+    @Transient
     private List<Screenshot> screenshots;
-
+    @Transient
     private List<Trailer> trailers;
-
+    @Column(name = "esrb")
     private String esrb;
-
-    private List<String> vendorSites;
+    @Transient
+    private List<String> purchaseSites;
 
     public VideoGame() {
 
     }
     public int getId() {
-        return id;
+        return gameId;
     }
     public void setId(int id) {
-        this.id = id;
+        this.gameId = id;
     }
     public String getName() {
         return name;
@@ -66,7 +67,7 @@ public class VideoGame {
     public String getBackground_image() {
         return background_image;
     }
-    public void setBackground_image(String background_image) {
+    public void setBackgroundImage(String background_image) {
         this.background_image = background_image;
     }
     public double getRating() {
@@ -107,11 +108,15 @@ public class VideoGame {
         this.esrb = (String) esrb.get("slug");
     }
 
-    public List<String> getVendorSites() {
-        return vendorSites;
+    public void setEsrb(String esrb) {
+        this.esrb = esrb;
     }
 
-    public void setVendorSites(List<String> vendorSites) {
-        this.vendorSites = vendorSites;
+    public List<String> getPurchaseSites() {
+        return purchaseSites;
+    }
+
+    public void setPurchaseSites(List<String> purchaseSites) {
+        this.purchaseSites = purchaseSites;
     }
 }
