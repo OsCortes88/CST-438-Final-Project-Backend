@@ -8,13 +8,11 @@ import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +54,8 @@ public class RAWGController {
         JSONObject json = new JSONObject(jsonString);
         JSONArray gamesList = json.getJSONArray("results");
 
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-
-        return games;
+        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_in_genre;
     }
 
     @GetMapping("/videogames/search")
@@ -66,15 +63,15 @@ public class RAWGController {
         // Call the RAWG API to search for games by title
         ResponseEntity<String> response = restTemplate.getForEntity(
                 "https://api.rawg.io/api/games?search=" + title + "&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                //TODO: pending search size limit?
                 String.class);
         String jsonString = response.getBody();
 
         JSONObject json = new JSONObject(jsonString);
         JSONArray gamesList = json.getJSONArray("results");
 
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-
-        return games;
+        List<VideoGame> games_by_title = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_by_title;
     }
 
     @GetMapping("/videogames/sort/price/low-to-high")
@@ -88,9 +85,8 @@ public class RAWGController {
         JSONObject json = new JSONObject(jsonString);
         JSONArray gamesList = json.getJSONArray("results");
 
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-
-        return games;
+        List<VideoGame> games_ltoh = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_ltoh;
     }
 
     @GetMapping("/videogames/sort/price/high-to-low")
@@ -104,9 +100,8 @@ public class RAWGController {
         JSONObject json = new JSONObject(jsonString);
         JSONArray gamesList = json.getJSONArray("results");
 
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-
-        return games;
+        List<VideoGame> games_htol = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_htol;
     }
 
 
