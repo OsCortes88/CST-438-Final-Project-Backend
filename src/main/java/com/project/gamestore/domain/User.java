@@ -14,6 +14,7 @@ public class User {
     private String lastName;
     private String email;
     private String password;
+    // All accounts will be users, will remove role field later.
     private String role;
 
     public long getId() {
