@@ -89,12 +89,12 @@ public class RAWGController {
             g.setDescription(String.valueOf(gamesList.get(i).get("description")));
             g.setBackgroundImage(String.valueOf(gamesList.get(i).get("background_image")));
             g.setReleased(String.valueOf(gamesList.get(i).get("released")));
-            g.setEsrb(String.valueOf(gamesList.get(i).get("esrb_rating")));
+            g.setEsrb(String.valueOf(gamesList.get(i).get("esrb_rating").get("slug")));
             g.setRating(Double.parseDouble(String.valueOf(gamesList.get(i).get("rating"))));
             g.setPlaytime(Integer.parseInt(String.valueOf(gamesList.get(i).get("playtime"))));
-            g.setScreenshots(getGameScreenShots(g.getId()));
-            g.setTrailers(getGameTrailers(g.getId()));
-            g.setPurchaseSites(getVendors(g.getId()));
+//            g.setScreenshots(getGameScreenShots(g.getId()));
+//            g.setTrailers(getGameTrailers(g.getId()));
+//            g.setPurchaseSites(getVendors(g.getId()));
             games.add(g);
         }
         return games;
