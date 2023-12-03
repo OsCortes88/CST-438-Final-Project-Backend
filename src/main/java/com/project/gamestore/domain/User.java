@@ -17,6 +17,9 @@ public class User {
     // All accounts will be users, will remove role field later.
     private String role;
 
+    public User() {
+    }
+
     public long getId() {
         return id;
     }
