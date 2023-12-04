@@ -61,6 +61,7 @@ public class RAWGController {
     }
 
     @GetMapping("/videogames/search")
+    // TODO: Tests for ListGamesbyName
     public List<VideoGame> ListGamesByName(@RequestParam String title) throws JsonProcessingException {
         // Process title
         processTitle(title);
@@ -121,6 +122,9 @@ public class RAWGController {
         JSONArray screenshotList = json.getJSONArray("results");
         // Map data in the json results to the object and return it
         List<Screenshot> screenshots = new ObjectMapper().readValue(screenshotList.toString(), new TypeReference<List<Screenshot>>() {});
+        for(Screenshot screenshot : screenshots) {
+            screenshot.setGameId(gameId);
+        }
         return screenshots;
     }
 
@@ -137,10 +141,13 @@ public class RAWGController {
         JSONArray trailersList = json.getJSONArray("results");
         // Map data in the json results to the object and return it
         List<Trailer> trailers = new ObjectMapper().readValue(trailersList.toString(), new TypeReference<List<Trailer>>() {});
+        for(Trailer trailer : trailers) {
+            trailer.setGameId(gameId);
+        }
         return trailers;
     }
 
-    public List<String> getVendors(Integer gameId) throws JsonProcessingException {
+    public List<PurchaseSite> getVendors(Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "/stores?key=" + key;
         // Call the RAWG API to get game details
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -154,15 +161,16 @@ public class RAWGController {
         // Move into the array with the list of stores
         JsonNode vendorList = rootNode.get("results");
         // Iterate through the stores and retrieve the url where we can purchase the game
-        List<String> vendors = new ArrayList<>();
+        List<PurchaseSite> vendors = new ArrayList<>();
         for (int i = 0; i < vendorList.size(); i++) {
             JsonNode vendorSite = vendorList.get(i).get("url");
-            vendors.add(vendorSite.asText());
+            vendors.add(new PurchaseSite(gameId, vendorSite.asText()));
         }
         return vendors;
     }
   
-  @GetMapping("/videogames/genre")
+    @GetMapping("/videogames/genre")
+    // TODO: Test for listGamesByGenre
     public List<VideoGame> listGamesByGenre(
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "") String sortBy,
