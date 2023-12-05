@@ -55,56 +55,46 @@ public class WishListController {
 
         // The following todos may require json body to receive the lists and later loop through them and aadd them.
         // TODO: Pending review (CARLOS) Add the screenshots to their table in the h2 database
-        List<String> screenshotUrls = Collections.singletonList(response.background_image());
-        List<Screenshot> screenshotEntities = new ArrayList<>();
-        for (String imageUrl : screenshotUrls) {
-            Screenshot screenshot = new Screenshot();
-            screenshot.setImage_url(imageUrl);
-            screenshotEntities.add(screenshot);
-        }
-        game.setScreenshots(screenshotEntities);
-        wishListRepository.save(wishlist);
-
-        // TODO: (FERNANDO) Ass the trailers to their table in the h2 database
-
-        // TODO: (FERNANDO) Add the purchase sites to their table.
-
+//        List<String> screenshotUrls = Collections.singletonList(response.background_image());
+//        List<Screenshot> screenshotEntities = new ArrayList<>();
+//        for (String imageUrl : screenshotUrls) {
+//            Screenshot screenshot = new Screenshot();
+//            screenshot.setImage_url(imageUrl);
+//            screenshotEntities.add(screenshot);
+//        }
+//
+//        game.setScreenshots(screenshotEntities);
         videoGameRepository.save(game);
         wishListRepository.save(wishlist);
         return game;
     }
 
     // TODO: Pending review (CARLOS) API call to delete a video games from the wishlist
-    @DeleteMapping("/delete-game/{wishlistId}")
-    public void deleteGameFromWishlist(@PathVariable("wishlistId") Integer wishlistId) throws Exception {
-        if (wishListRepository.existsById(wishlistId)) {
-
-            wishListRepository.deleteById(wishlistId);
-        } else {
-            throw new Exception("wishlist item not found");
-        }
+//    @DeleteMapping("/delete-game/{wishlistId}")
+//    public void deleteGameFromWishlist(@PathVariable("wishlistId") Integer wishlistId) throws Exception {
+//        if (wishListRepository.existsById(wishlistId)) {
+//            wishListRepository.deleteById(wishlistId);
+//        } else {
+//            throw new Exception("wishlist item not found");
+//        }
+//    }
+    @DeleteMapping("/delete-game/{userId}{gameId}")
+    public void deleteByGame(@PathVariable("userId") Integer userId ,@PathVariable("gameId") Integer gameId) {
+//        wishListRepository.deleteByGame();
     }
     // TODO: Pending review (CARLOS) API for viewing all video games in a users wishlist
-    @RestController
-    public static class WishlistController {
-        private final WishListRepository wishListRepository;
-        private final VideoGameRepository videoGameRepository;
 
-        public WishlistController(WishListRepository wishListRepository, VideoGameRepository videoGameRepository) {
-            this.wishListRepository = wishListRepository;
-            this.videoGameRepository = videoGameRepository;
-        }
+    public List<VideoGame> viewWishList(@PathVariable("/wishlist/{userId}") Integer userId) {
+        Optional<Wishlist> wishlistsItems = wishListRepository.findById(userId);
+        List<VideoGame> videoGames = new ArrayList<>();
+        wishlistsItems.ifPresent(wishlistItem -> {
+            VideoGame videoGame = wishlistItem.getGame();
+            videoGames.add(videoGame);
+        });
 
-        public List<VideoGame> viewWishList(@PathVariable("userId") Integer userId) {
-            Optional<Wishlist> wishlistsItems = wishListRepository.findById(userId);
-            List<VideoGame> videoGames = new ArrayList<>();
-
-            wishlistsItems.ifPresent(wishlistItem -> {
-                VideoGame videoGame = wishlistItem.getGame();
-                videoGames.add(videoGame);
-            });
-
-            return videoGames;
-        }
+        return videoGames;
     }
+
+
+
 }
