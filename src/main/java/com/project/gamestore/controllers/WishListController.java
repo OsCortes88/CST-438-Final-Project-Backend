@@ -3,10 +3,16 @@ package com.project.gamestore.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamestore.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class WishListController {
@@ -48,15 +54,57 @@ public class WishListController {
         wishlist.setGame(game);
 
         // The following todos may require json body to receive the lists and later loop through them and aadd them.
-        // TODO: (CARLOS OR FERNANDO) Add the screenshots to their table in the h2 database
-        // TODO: (CARLOS OR FERNANDO) Ass the trailers to their table in the h2 database
-        // TODO: (CARLOS OR FERNANDO) Add the purchase sites to their table.
+        // TODO: Pending review (CARLOS) Add the screenshots to their table in the h2 database
+        List<String> screenshotUrls = Collections.singletonList(response.background_image());
+        List<Screenshot> screenshotEntities = new ArrayList<>();
+        for (String imageUrl : screenshotUrls) {
+            Screenshot screenshot = new Screenshot();
+            screenshot.setImage_url(imageUrl);
+            screenshotEntities.add(screenshot);
+        }
+        game.setScreenshots(screenshotEntities);
+        wishListRepository.save(wishlist);
+
+        // TODO: (FERNANDO) Ass the trailers to their table in the h2 database
+
+        // TODO: (FERNANDO) Add the purchase sites to their table.
+
         videoGameRepository.save(game);
         wishListRepository.save(wishlist);
         return game;
     }
 
-    // TODO: (CARLOS OR FERNANDO) API call to delete a video games from the wishlist
+    // TODO: Pending review (CARLOS) API call to delete a video games from the wishlist
+    @DeleteMapping("/delete-game/{wishlistId}")
+    public void deleteGameFromWishlist(@PathVariable("wishlistId") Integer wishlistId) throws Exception {
+        if (wishListRepository.existsById(wishlistId)) {
 
-    // TODO: (CARLOS OR FERNANDO) API for viewing all video games in a users wishlist
+            wishListRepository.deleteById(wishlistId);
+        } else {
+            throw new Exception("wishlist item not found");
+        }
+    }
+    // TODO: Pending review (CARLOS) API for viewing all video games in a users wishlist
+    @RestController
+    public static class WishlistController {
+        private final WishListRepository wishListRepository;
+        private final VideoGameRepository videoGameRepository;
+
+        public WishlistController(WishListRepository wishListRepository, VideoGameRepository videoGameRepository) {
+            this.wishListRepository = wishListRepository;
+            this.videoGameRepository = videoGameRepository;
+        }
+
+        public List<VideoGame> viewWishList(@PathVariable("userId") Integer userId) {
+            Optional<Wishlist> wishlistsItems = wishListRepository.findById(userId);
+            List<VideoGame> videoGames = new ArrayList<>();
+
+            wishlistsItems.ifPresent(wishlistItem -> {
+                VideoGame videoGame = wishlistItem.getGame();
+                videoGames.add(videoGame);
+            });
+
+            return videoGames;
+        }
+    }
 }
