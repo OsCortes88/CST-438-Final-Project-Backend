@@ -7,6 +7,7 @@ create table user_table
     password   varchar(100),
     role       varchar(25)
 );
+
 CREATE TABLE genre (
     id INT,
     genre VARCHAR(45),
