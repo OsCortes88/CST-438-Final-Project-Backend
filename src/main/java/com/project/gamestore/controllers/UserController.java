@@ -24,7 +24,7 @@ public class UserController {
         if(user==null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found.");
         } else {
-            return new UserInfo(email, user.getFirstName(), user.getLastName());
+            return new UserInfo(user.getId(), email, user.getFirstName(), user.getLastName());
         }
     }
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
@@ -38,12 +38,12 @@ public class UserController {
             newUser.setFirstName(accountInfo.firstName());
             newUser.setLastName(accountInfo.lastName());
             // Use BCrypt to encode password.
-            newUser.setPassword(passwordEncoder.encode(accountInfo.password()));
+            newUser.setPassword(accountInfo.password());
             newUser.setRole("USER");
             userRepository.save(newUser);
             return new ResponseEntity<>(true, HttpStatus.OK);
         }
         // Return false if user already exists
-        return new ResponseEntity<>(false, HttpStatus.OK);
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 }
