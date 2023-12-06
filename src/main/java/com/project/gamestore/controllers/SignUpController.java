@@ -1,4 +1,4 @@
-package com.project.gamestore.controller;
+package com.project.gamestore.controllers;
 
 import com.project.gamestore.domain.User;
 import com.project.gamestore.domain.UserRepository;
