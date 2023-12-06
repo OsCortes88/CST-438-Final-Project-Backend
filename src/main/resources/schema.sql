@@ -39,13 +39,7 @@ CREATE TABLE video_game (
 CREATE TABLE wish_list (
     userId INT,
     gameId INT,
---     TODO: (CARLOS) Add remaining fields related to the game (except vendors, trailers, and screenshots)
-    description VARCHAR(5000),
-    released VARCHAR(45),
+    name VARCHAR(45),
     background_image VARCHAR(200),
-    rating DECIMAL,
-    esrb VARCHAR(45),
-    site VARCHAR(200), -- Why do we need a site if we're going to make it like a storefront? Unless that's not the plan anymore
-    PRIMARY KEY (userId),
-    FOREIGN KEY (gameId) REFERENCES video_game (gameId) on delete cascade
+    PRIMARY KEY (userId, gameId)
 );

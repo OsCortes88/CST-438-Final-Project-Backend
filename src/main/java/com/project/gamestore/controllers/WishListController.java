@@ -1,18 +1,13 @@
 package com.project.gamestore.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamestore.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class WishListController {
@@ -21,80 +16,55 @@ public class WishListController {
     WishListRepository wishListRepository;
     @Autowired
     VideoGameRepository videoGameRepository;
-    @Autowired
-    ScreenshotRepository screenshotRepository;
-    @Autowired
-    TrailerRepository trailerRepository;
-    @Autowired
-    PurchaseSiteRepository purchaseSiteRepository;
 
     @PutMapping("/add-game/{userID}/{gameID}")
-    public VideoGame addGameToWishList(@PathVariable("userID") Integer userId,
-                                       @PathVariable("gameID") Integer gameID) throws JsonProcessingException {
+    public boolean addGameToWishList(@PathVariable("userID") Integer userId,
+                                       @PathVariable("gameID") Integer gameID) throws Exception {
         // Get the video game data from the RAWGController
-        VideoGameDTO response = restTemplate.getForObject(
-                "http://localhost:8080/videogame-info/" + gameID,
-                VideoGameDTO.class);
+        if(wishListRepository.findByGameId(gameID) == null) {
+            VideoGameDTO response = restTemplate.getForObject(
+                    "http://localhost:8080/videogame-info/" + gameID,
+                        VideoGameDTO.class);
+            // Set video game info and store it in videogame table
+            VideoGame game = new VideoGame();
+            game.setId(response.id());
+            game.setName(response.name());
+            game.setDescription(response.description());
+            game.setReleased(response.released());
+            game.setBackgroundImage(response.background_image());
+            game.setRating(response.rating());
+            game.setPlaytime(response.playtime());
+            game.setEsrb(response.esrb_rating());
+            videoGameRepository.save(game);
 
-        // Create the wishlist object that will later be used in the repository
-        Wishlist wishlist = new Wishlist();
-
-        // Set the wishlist attributes
-        wishlist.setUserId(userId);
-
-        VideoGame game = new VideoGame();
-        game.setId(response.id());
-        game.setName(response.name());
-        game.setDescription(response.description());
-        game.setReleased(response.released());
-        game.setBackgroundImage(response.background_image());
-        game.setRating(response.rating());
-        game.setPlaytime(response.playtime());
-        game.setEsrb(response.esrb_rating());
-        wishlist.setGame(game);
-
-        // The following todos may require json body to receive the lists and later loop through them and aadd them.
-        // TODO: Pending review (CARLOS) Add the screenshots to their table in the h2 database
-//        List<String> screenshotUrls = Collections.singletonList(response.background_image());
-//        List<Screenshot> screenshotEntities = new ArrayList<>();
-//        for (String imageUrl : screenshotUrls) {
-//            Screenshot screenshot = new Screenshot();
-//            screenshot.setImage_url(imageUrl);
-//            screenshotEntities.add(screenshot);
-//        }
-//
-//        game.setScreenshots(screenshotEntities);
-        videoGameRepository.save(game);
-        wishListRepository.save(wishlist);
-        return game;
+            // Create the wishlist object that will later be used in the repository
+            WishListItem wishlistItem = new WishListItem();
+            wishlistItem.setUserId(userId);
+            wishlistItem.setGameId(response.id());
+            wishlistItem.setName(response.name());
+            wishlistItem.setBackground_image(response.background_image());
+            wishListRepository.save(wishlistItem);
+            return true;
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "There is no such game in the wishlist table");
+        }
     }
 
-    // TODO: Pending review (CARLOS) API call to delete a video games from the wishlist
-//    @DeleteMapping("/delete-game/{wishlistId}")
-//    public void deleteGameFromWishlist(@PathVariable("wishlistId") Integer wishlistId) throws Exception {
-//        if (wishListRepository.existsById(wishlistId)) {
-//            wishListRepository.deleteById(wishlistId);
-//        } else {
-//            throw new Exception("wishlist item not found");
-//        }
-//    }
-    @DeleteMapping("/delete-game/{userId}{gameId}")
-    public void deleteByGame(@PathVariable("userId") Integer userId ,@PathVariable("gameId") Integer gameId) {
-//        wishListRepository.deleteByGame();
-    }
-    // TODO: Pending review (CARLOS) API for viewing all video games in a users wishlist
-
-    public List<VideoGame> viewWishList(@PathVariable("/wishlist/{userId}") Integer userId) {
-        Optional<Wishlist> wishlistsItems = wishListRepository.findById(userId);
-        List<VideoGame> videoGames = new ArrayList<>();
-        wishlistsItems.ifPresent(wishlistItem -> {
-            VideoGame videoGame = wishlistItem.getGame();
-            videoGames.add(videoGame);
-        });
-
-        return videoGames;
+    @DeleteMapping("/delete-game/{userId}/{gameId}")
+    public boolean deleteGameFromWishlist(@PathVariable("userId") Integer userId,
+                                       @PathVariable("gameId") Integer gameId) throws Exception {
+        if (wishListRepository.findByGameId(gameId) != null) {
+            wishListRepository.deleteByGameId(gameId);
+            return true;
+        } else {
+            throw new Exception("wishlist item not found");
+        }
     }
 
-
+    @GetMapping("/wishlist/{userId}")
+    public List<WishListItem> getItemsInUserWishList(@PathVariable("userId") Integer userId) {
+        List<WishListItem> userWishList = wishListRepository.findUsersWishList(userId);
+        return userWishList;
+    }
 
 }
