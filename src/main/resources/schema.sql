@@ -49,7 +49,7 @@ CREATE TABLE video_game (
 CREATE TABLE wish_list (
     userId INT,
     gameId INT,
---     TODO: (CARLOS OR FERNANDO) Add remaining fields related to the game (except vendors, trailers, and screenshots)
-    PRIMARY KEY (userId),
-    FOREIGN KEY (gameId) REFERENCES video_game (gameId) on delete cascade
+    name VARCHAR(45),
+    background_image VARCHAR(200),
+    PRIMARY KEY (userId, gameId)
 );
