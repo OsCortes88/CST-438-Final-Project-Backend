@@ -66,5 +66,4 @@ public class WishListController {
         List<WishListItem> userWishList = wishListRepository.findUsersWishList(userId);
         return userWishList;
     }
-
 }

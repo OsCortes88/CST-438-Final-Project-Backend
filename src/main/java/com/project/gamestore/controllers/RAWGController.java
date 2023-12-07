@@ -60,7 +60,6 @@ public class RAWGController {
         title = title.replace(' ', '-');
     }
 
-
     @GetMapping("/videogames/search/{title}/{size}/{page}")
     public List<VideoGame> ListGamesByName(@PathVariable("title") String title,
                                            @PathVariable("size") Integer size,
