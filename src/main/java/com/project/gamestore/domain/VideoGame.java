@@ -35,7 +35,7 @@ public class VideoGame {
     @Column(name = "esrb")
     private String esrb;
     @Transient
-    private List<String> purchaseSites;
+    private List<PurchaseSite> purchaseSites;
 
     public VideoGame() {
 
@@ -114,11 +114,11 @@ public class VideoGame {
         this.esrb = esrb;
     }
 
-    public List<String> getPurchaseSites() {
+    public List<PurchaseSite> getPurchaseSites() {
         return purchaseSites;
     }
 
-    public void setPurchaseSites(List<String> purchaseSites) {
+    public void setPurchaseSites(List<PurchaseSite> purchaseSites) {
         this.purchaseSites = purchaseSites;
     }
 }

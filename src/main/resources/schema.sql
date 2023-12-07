@@ -1,3 +1,13 @@
+create table user_table
+(
+    id identity primary key,
+    email      varchar(25) unique,
+    first_name varchar(25),
+    last_name  varchar(25),
+    password   varchar(100),
+    role       varchar(25)
+);
+
 CREATE TABLE genre (
     id INT,
     genre VARCHAR(45),
@@ -39,7 +49,7 @@ CREATE TABLE video_game (
 CREATE TABLE wish_list (
     userId INT,
     gameId INT,
---     TODO: (CARLOS OR FERNANDO) Add remaining fields related to the game (except vendors, trailers, and screenshots)
-    PRIMARY KEY (userId),
-    FOREIGN KEY (gameId) REFERENCES video_game (gameId) on delete cascade
+    name VARCHAR(45),
+    background_image VARCHAR(200),
+    PRIMARY KEY (userId, gameId)
 );

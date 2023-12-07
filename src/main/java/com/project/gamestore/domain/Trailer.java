@@ -25,6 +25,21 @@ public class Trailer {
     public Trailer() {
     }
 
+    public Trailer(int gameId, String name, String preview, String uri) {
+        this.gameId = gameId;
+        this.name = name;
+        this.preview = preview;
+        this.uri = uri;
+    }
+
+    public int getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
+    }
+
     public String getName() {
         return name;
     }
