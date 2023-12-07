@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -36,9 +37,8 @@ public class RAWGController {
     private RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/videogames/{size}/{page}")
     // TODO: Add login verfication using JWT prinipal
-    public List<VideoGame> ListGames(@PathVariable("size") Integer size,
+    public List<VideoGame> ListGames(Principal principal, @PathVariable("size") Integer size,
                                      @PathVariable("page") Integer page) throws JsonProcessingException {
-
         String url = "https://api.rawg.io/api/games?page_size=" + size +  "&page=" + page + "&key=" + key;
         // Call the RAWG API to get a certain number of games
         ResponseEntity<String> response = restTemplate.getForEntity(

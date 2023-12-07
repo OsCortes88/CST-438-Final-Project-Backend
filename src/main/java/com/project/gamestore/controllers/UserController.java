@@ -11,20 +11,22 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
+
 @RestController
 public class UserController {
     @Autowired
     UserRepository userRepository;
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    @GetMapping("/user/{email}")
+    @GetMapping("/user")
     @CrossOrigin
-    public UserInfo getUserInfo(@PathVariable("email") String email){
-        User user = userRepository.findByEmail(email);
+    public UserInfo getUserInfo(Principal principal){
+        User user = userRepository.findByEmail(principal.getName());
         if(user==null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found.");
         } else {
-            return new UserInfo(user.getId(), email, user.getFirstName(), user.getLastName());
+            return new UserInfo(user.getId(), principal.getName(), user.getFirstName(), user.getLastName());
         }
     }
     @RequestMapping(value = "/signup", method = RequestMethod.POST)

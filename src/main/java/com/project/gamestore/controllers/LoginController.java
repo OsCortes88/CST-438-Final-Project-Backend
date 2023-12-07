@@ -1,6 +1,10 @@
 package com.project.gamestore.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.gamestore.domain.User;
+import com.project.gamestore.domain.UserRepository;
 import com.project.gamestore.dto.AccountCredentials;
+import com.project.gamestore.dto.UserInfo;
 import com.project.gamestore.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,16 +25,30 @@ public class LoginController {
     @Autowired
     AuthenticationManager authenticationManager;
 
+    @Autowired
+    UserRepository userRepository;
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> getToken(@RequestBody AccountCredentials credentials) {
         UsernamePasswordAuthenticationToken creds = new UsernamePasswordAuthenticationToken(credentials.username(), credentials.password());
         Authentication auth = authenticationManager.authenticate(creds);
-        // Generate Token
+        // Verify use exists in database
+        User user = userRepository.findByEmail(auth.getName());
         String jwts = jwtService.getToken(auth.getName());
+
+
         // Build response with the generated token
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwts)
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
-                .build();
+                .body(asJsonString(user));
+    }
+
+    public static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
