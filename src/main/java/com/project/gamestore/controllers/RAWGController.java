@@ -39,7 +39,7 @@ public class RAWGController {
     public List<VideoGame> ListGames(@PathVariable("size") Integer size,
                                      @PathVariable("page") Integer page) throws JsonProcessingException {
 
-        String url = "https://api.rawg.io/api/games?page_size=" + size +  "&key=" + key;
+        String url = "https://api.rawg.io/api/games?page_size=" + size +  "&page=" + page + "&key=" + key;
         // Call the RAWG API to get a certain number of games
         ResponseEntity<String> response = restTemplate.getForEntity(
                 url,
