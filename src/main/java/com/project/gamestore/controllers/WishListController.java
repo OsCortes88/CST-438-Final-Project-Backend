@@ -72,7 +72,6 @@ public class WishListController {
         System.out.println(userInfo);
         System.out.println("" + wishListRepository.findAll());
         List<WishListItem> userWishList = wishListRepository.findUsersWishList((int) userInfo.getId());
-        System.out.println("User wishList: " + userWishList.get(0).getBackground_image());
         return userWishList;
     }
 
