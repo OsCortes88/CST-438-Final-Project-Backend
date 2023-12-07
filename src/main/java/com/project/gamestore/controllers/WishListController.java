@@ -19,12 +19,12 @@ public class WishListController {
 
     @PutMapping("/add-game/{userID}/{gameID}")
     public boolean addGameToWishList(@PathVariable("userID") Integer userId,
-                                       @PathVariable("gameID") Integer gameID) throws Exception {
+                                     @PathVariable("gameID") Integer gameID) throws Exception {
         // Get the video game data from the RAWGController
         if(wishListRepository.findByGameId(gameID) == null) {
             VideoGameDTO response = restTemplate.getForObject(
                     "http://localhost:8080/videogame-info/" + gameID,
-                        VideoGameDTO.class);
+                    VideoGameDTO.class);
             // Set video game info and store it in videogame table
             VideoGame game = new VideoGame();
             game.setId(response.id());
@@ -52,7 +52,7 @@ public class WishListController {
 
     @DeleteMapping("/delete-game/{userId}/{gameId}")
     public boolean deleteGameFromWishlist(@PathVariable("userId") Integer userId,
-                                       @PathVariable("gameId") Integer gameId) throws Exception {
+                                          @PathVariable("gameId") Integer gameId) throws Exception {
         if (wishListRepository.findByGameId(gameId) != null) {
             wishListRepository.deleteByGameId(gameId);
             return true;
@@ -66,5 +66,4 @@ public class WishListController {
         List<WishListItem> userWishList = wishListRepository.findUsersWishList(userId);
         return userWishList;
     }
-
 }
