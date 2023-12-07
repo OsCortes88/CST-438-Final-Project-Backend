@@ -35,7 +35,7 @@ public class VideoGame {
     @Column(name = "esrb")
     private String esrb;
     @Transient
-    private List<String> purchaseSites;
+    private List<PurchaseSite> purchaseSites;
 
     public VideoGame() {
 
@@ -105,18 +105,20 @@ public class VideoGame {
 
     @JsonProperty("esrb_rating")
     private void setEsrb(Map<String,Object> esrb) {
-        this.esrb = (String) esrb.get("slug");
+        if (esrb != null) {
+            this.esrb = (String) esrb.get("slug");
+        }
     }
 
     public void setEsrb(String esrb) {
         this.esrb = esrb;
     }
 
-    public List<String> getPurchaseSites() {
+    public List<PurchaseSite> getPurchaseSites() {
         return purchaseSites;
     }
 
-    public void setPurchaseSites(List<String> purchaseSites) {
+    public void setPurchaseSites(List<PurchaseSite> purchaseSites) {
         this.purchaseSites = purchaseSites;
     }
 }

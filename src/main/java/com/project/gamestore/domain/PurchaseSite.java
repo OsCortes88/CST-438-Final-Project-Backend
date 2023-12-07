@@ -18,6 +18,11 @@ public class PurchaseSite {
         this.site = "";
     }
 
+    public PurchaseSite(int gameId, String site) {
+        this.gameId = gameId;
+        this.site = site;
+    }
+
     public int getGameId() {
         return gameId;
     }
@@ -26,11 +31,11 @@ public class PurchaseSite {
         this.gameId = gameId;
     }
 
-    public String getPurchaseSite() {
+    public String getSite() {
         return site;
     }
 
-    public void setPurchaseSite(String purchaseSite) {
-        this.site = purchaseSite;
+    public void setSite(String site) {
+        this.site = site;
     }
 }

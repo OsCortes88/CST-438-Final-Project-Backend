@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -36,10 +37,9 @@ public class RAWGController {
     private RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/videogames/{size}/{page}")
     // TODO: Add login verfication using JWT prinipal
-    public List<VideoGame> ListGames(@PathVariable("size") Integer size,
+    public List<VideoGame> ListGames(Principal principal, @PathVariable("size") Integer size,
                                      @PathVariable("page") Integer page) throws JsonProcessingException {
-
-        String url = "https://api.rawg.io/api/games?page_size=" + size +  "&key=" + key;
+        String url = "https://api.rawg.io/api/games?page_size=" + size +  "&page=" + page + "&key=" + key;
         // Call the RAWG API to get a certain number of games
         ResponseEntity<String> response = restTemplate.getForEntity(
                 url,
@@ -60,22 +60,47 @@ public class RAWGController {
         title = title.replace(' ', '-');
     }
 
-    @GetMapping("/videogames/search")
-    public List<VideoGame> ListGamesByName(@RequestParam String title) throws JsonProcessingException {
-        // Process title
+
+    @GetMapping("/videogames/search/{title}/{size}/{page}")
+    public List<VideoGame> ListGamesByName(@PathVariable("title") String title,
+                                           @PathVariable("size") Integer size,
+                                           @PathVariable("page") Integer page) throws JsonProcessingException {
+        // Process title.
         processTitle(title);
 
-        // Call the RAWG API to get a certain number of games
+        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
+
+        // Call the RAWG API to get a certain number of games.
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?search=" + title + "&page_size=10&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                url,
                 String.class);
         String jsonString = response.getBody();
 
-        // Convert the json string to a json object, so we can access data.
-        JSONObject json = new JSONObject(jsonString);
-        JSONArray gamesList = json.getJSONArray("results");
-  
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        // Convert the json string to a json node, so we can access data.
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readValue(jsonString, JsonNode.class);
+
+        // Move into the array with the list of games.
+        JsonNode gamesList = rootNode.get("results");
+
+        // Iterate through the games and retrieve the game info.
+        List<VideoGame> games = new ArrayList<>();
+        for (int i = 0; i < gamesList.size(); i++) {
+            VideoGame g = new VideoGame();
+            g.setId(gamesList.get(i).get("id").asInt());
+            g.setName(gamesList.get(i).get("name").asText());
+            if(gamesList.get(i).get("description") != null) {
+                g.setDescription(gamesList.get(i).get("description").asText());
+            }
+            g.setBackgroundImage(gamesList.get(i).get("background_image").asText());
+            g.setReleased(gamesList.get(i).get("released").asText());
+            if(gamesList.get(i).get("esrb_rating").get("slug") != null) {
+                g.setEsrb(gamesList.get(i).get("esrb_rating").get("slug").asText());
+            }
+            g.setRating(gamesList.get(i).get("rating").asDouble());
+            g.setPlaytime(gamesList.get(i).get("playtime").asInt());
+            games.add(g);
+        }
         return games;
     }
 
@@ -121,6 +146,9 @@ public class RAWGController {
         JSONArray screenshotList = json.getJSONArray("results");
         // Map data in the json results to the object and return it
         List<Screenshot> screenshots = new ObjectMapper().readValue(screenshotList.toString(), new TypeReference<List<Screenshot>>() {});
+        for(Screenshot screenshot : screenshots) {
+            screenshot.setGameId(gameId);
+        }
         return screenshots;
     }
 
@@ -137,10 +165,13 @@ public class RAWGController {
         JSONArray trailersList = json.getJSONArray("results");
         // Map data in the json results to the object and return it
         List<Trailer> trailers = new ObjectMapper().readValue(trailersList.toString(), new TypeReference<List<Trailer>>() {});
+        for(Trailer trailer : trailers) {
+            trailer.setGameId(gameId);
+        }
         return trailers;
     }
 
-    public List<String> getVendors(Integer gameId) throws JsonProcessingException {
+    public List<PurchaseSite> getVendors(Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "/stores?key=" + key;
         // Call the RAWG API to get game details
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -154,15 +185,16 @@ public class RAWGController {
         // Move into the array with the list of stores
         JsonNode vendorList = rootNode.get("results");
         // Iterate through the stores and retrieve the url where we can purchase the game
-        List<String> vendors = new ArrayList<>();
+        List<PurchaseSite> vendors = new ArrayList<>();
         for (int i = 0; i < vendorList.size(); i++) {
             JsonNode vendorSite = vendorList.get(i).get("url");
-            vendors.add(vendorSite.asText());
+            vendors.add(new PurchaseSite(gameId, vendorSite.asText()));
         }
         return vendors;
     }
   
-  @GetMapping("/videogames/genre")
+    @GetMapping("/videogames/genre")
+    // TODO: Test for listGamesByGenre
     public List<VideoGame> listGamesByGenre(
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "") String sortBy,

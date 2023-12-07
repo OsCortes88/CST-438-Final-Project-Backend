@@ -12,11 +12,12 @@ public interface WishListRepository extends CrudRepository<WishListItem, Integer
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM WishListItem w WHERE w.gameId = :gameId")
-    void deleteByGameId(@Param("gameId") Integer gameId);
+    @Query("DELETE FROM WishListItem w WHERE w.userId = :userId and w.gameId = :gameId")
+    void deleteByGameId(@Param("userId") Integer userId, @Param("gameId") Integer gameId);
 
     @Query("SELECT w FROM WishListItem w WHERE w.userId = :userId")
     List<WishListItem> findUsersWishList(@Param("userId") Integer userId);
 
-    WishListItem findByGameId(Integer gameId);
+    @Query("SELECT w FROM WishListItem w WHERE w.userId = :userId and w.gameId = :gameId")
+    WishListItem findByGameId(@Param("userId") Integer userId, @Param("gameId") Integer gameId);
 }
