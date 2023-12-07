@@ -60,23 +60,47 @@ public class RAWGController {
         title = title.replace(' ', '-');
     }
 
-    @GetMapping("/videogames/search")
-    // TODO: Tests for ListGamesbyName
-    public List<VideoGame> ListGamesByName(@RequestParam String title) throws JsonProcessingException {
-        // Process title
+
+    @GetMapping("/videogames/search/{title}/{size}/{page}")
+    public List<VideoGame> ListGamesByName(@PathVariable("title") String title,
+                                           @PathVariable("size") Integer size,
+                                           @PathVariable("page") Integer page) throws JsonProcessingException {
+        // Process title.
         processTitle(title);
 
-        // Call the RAWG API to get a certain number of games
+        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
+
+        // Call the RAWG API to get a certain number of games.
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?search=" + title + "&page_size=10&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                url,
                 String.class);
         String jsonString = response.getBody();
 
-        // Convert the json string to a json object, so we can access data.
-        JSONObject json = new JSONObject(jsonString);
-        JSONArray gamesList = json.getJSONArray("results");
-  
-        List<VideoGame> games = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        // Convert the json string to a json node, so we can access data.
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readValue(jsonString, JsonNode.class);
+
+        // Move into the array with the list of games.
+        JsonNode gamesList = rootNode.get("results");
+
+        // Iterate through the games and retrieve the game info.
+        List<VideoGame> games = new ArrayList<>();
+        for (int i = 0; i < gamesList.size(); i++) {
+            VideoGame g = new VideoGame();
+            g.setId(gamesList.get(i).get("id").asInt());
+            g.setName(gamesList.get(i).get("name").asText());
+            if(gamesList.get(i).get("description") != null) {
+                g.setDescription(gamesList.get(i).get("description").asText());
+            }
+            g.setBackgroundImage(gamesList.get(i).get("background_image").asText());
+            g.setReleased(gamesList.get(i).get("released").asText());
+            if(gamesList.get(i).get("esrb_rating").get("slug") != null) {
+                g.setEsrb(gamesList.get(i).get("esrb_rating").get("slug").asText());
+            }
+            g.setRating(gamesList.get(i).get("rating").asDouble());
+            g.setPlaytime(gamesList.get(i).get("playtime").asInt());
+            games.add(g);
+        }
         return games;
     }
 
