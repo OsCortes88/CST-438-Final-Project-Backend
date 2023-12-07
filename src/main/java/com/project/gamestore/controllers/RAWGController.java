@@ -60,12 +60,14 @@ public class RAWGController {
         title = title.replace(' ', '-');
     }
 
-    @GetMapping("/videogames/search")
-    public List<VideoGame> ListGamesByName(@RequestParam String title) throws JsonProcessingException {
+    @GetMapping("/videogames/search/{title}/{size}/{page}")
+    public List<VideoGame> ListGamesByName(@PathVariable("title") String title,
+                                           @PathVariable("size") Integer size,
+                                           @PathVariable("page") Integer page) throws JsonProcessingException {
         // Process title.
         processTitle(title);
 
-        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=10&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
+        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
 
         // Call the RAWG API to get a certain number of games.
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -84,17 +86,18 @@ public class RAWGController {
         List<VideoGame> games = new ArrayList<>();
         for (int i = 0; i < gamesList.size(); i++) {
             VideoGame g = new VideoGame();
-            g.setId(Integer.parseInt(String.valueOf(gamesList.get(i).get("id"))));
-            g.setName(String.valueOf(gamesList.get(i).get("name")));
-            g.setDescription(String.valueOf(gamesList.get(i).get("description")));
-            g.setBackgroundImage(String.valueOf(gamesList.get(i).get("background_image")));
-            g.setReleased(String.valueOf(gamesList.get(i).get("released")));
-            g.setEsrb(String.valueOf(gamesList.get(i).get("esrb_rating").get("slug")));
-            g.setRating(Double.parseDouble(String.valueOf(gamesList.get(i).get("rating"))));
-            g.setPlaytime(Integer.parseInt(String.valueOf(gamesList.get(i).get("playtime"))));
-//            g.setScreenshots(getGameScreenShots(g.getId()));
-//            g.setTrailers(getGameTrailers(g.getId()));
-//            g.setPurchaseSites(getVendors(g.getId()));
+            g.setId(gamesList.get(i).get("id").asInt());
+            g.setName(gamesList.get(i).get("name").asText());
+            if(gamesList.get(i).get("description") != null) {
+                g.setDescription(gamesList.get(i).get("description").asText());
+            }
+            g.setBackgroundImage(gamesList.get(i).get("background_image").asText());
+            g.setReleased(gamesList.get(i).get("released").asText());
+            if(gamesList.get(i).get("esrb_rating").get("slug") != null) {
+                g.setEsrb(gamesList.get(i).get("esrb_rating").get("slug").asText());
+            }
+            g.setRating(gamesList.get(i).get("rating").asDouble());
+            g.setPlaytime(gamesList.get(i).get("playtime").asInt());
             games.add(g);
         }
         return games;
