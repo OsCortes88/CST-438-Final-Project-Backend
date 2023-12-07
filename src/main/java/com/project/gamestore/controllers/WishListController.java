@@ -20,6 +20,16 @@ public class WishListController {
     @Autowired
     VideoGameRepository videoGameRepository;
 
+
+//     @PutMapping("/add-game/{userID}/{gameID}")
+//     public boolean addGameToWishList(@PathVariable("userID") Integer userId,
+//                                      @PathVariable("gameID") Integer gameID) throws Exception {
+//         // Get the video game data from the RAWGController
+//         if(wishListRepository.findByGameId(gameID) == null) {
+//             VideoGameDTO response = restTemplate.getForObject(
+//                     "http://localhost:8080/videogame-info/" + gameID,
+//                     VideoGameDTO.class);
+
     @PutMapping("/add-game/{gameID}")
     public boolean addGameToWishList(Principal principal,
                                      @RequestBody VideoGameDTO gameInfo) throws Exception {
@@ -29,6 +39,7 @@ public class WishListController {
 //            VideoGameDTO response = restTemplate.getForObject(
 //                    "http://localhost:8080/videogame-info/" + gameID,
 //                        VideoGameDTO.class);
+
             // Set video game info and store it in videogame table
             VideoGame game = new VideoGame();
             game.setId(gameInfo.id());
@@ -54,12 +65,20 @@ public class WishListController {
         }
     }
 
+
+//     @DeleteMapping("/delete-game/{userId}/{gameId}")
+//     public boolean deleteGameFromWishlist(@PathVariable("userId") Integer userId,
+//                                           @PathVariable("gameId") Integer gameId) throws Exception {
+//         if (wishListRepository.findByGameId(gameId) != null) {
+//             wishListRepository.deleteByGameId(gameId);
+
     @DeleteMapping("/delete-game/{gameId}")
     public boolean deleteGameFromWishlist(Principal principal,
                                        @PathVariable("gameId") Integer gameId) throws Exception {
         User user = userRepository.findByEmail(principal.getName());
         if (wishListRepository.findByGameId((int) user.getId(), gameId) != null) {
             wishListRepository.deleteByGameId((int) user.getId(), gameId);
+
             return true;
         } else {
             throw new Exception("wishlist item not found");
@@ -74,5 +93,4 @@ public class WishListController {
         List<WishListItem> userWishList = wishListRepository.findUsersWishList((int) userInfo.getId());
         return userWishList;
     }
-
 }
