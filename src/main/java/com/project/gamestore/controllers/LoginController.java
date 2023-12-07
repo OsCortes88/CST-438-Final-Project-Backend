@@ -1,4 +1,4 @@
-package com.project.gamestore.controller;
+package com.project.gamestore.controllers;
 
 import com.project.gamestore.dto.AccountCredentials;
 import com.project.gamestore.service.JwtService;
