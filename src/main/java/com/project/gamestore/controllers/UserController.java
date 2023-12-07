@@ -38,7 +38,7 @@ public class UserController {
             newUser.setFirstName(accountInfo.firstName());
             newUser.setLastName(accountInfo.lastName());
             // Use BCrypt to encode password.
-            newUser.setPassword(accountInfo.password());
+            newUser.setPassword(passwordEncoder.encode(accountInfo.password()));
             newUser.setRole("USER");
             userRepository.save(newUser);
             return new ResponseEntity<>(true, HttpStatus.OK);
