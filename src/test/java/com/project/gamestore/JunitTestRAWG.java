@@ -33,11 +33,11 @@ class JunitTestRAWG {
     private RAWGController rawg = new RAWGController();
 
     public List<PurchaseSite> expectedPurchaseSites = new ArrayList<>() {{
-        add(new PurchaseSite(3498, "https://store.playstation.com/en-us/product/UP1004-CUSA00419_00-GTAVDIGITALDOWNL"));
-        add(new PurchaseSite(3498, "https://www.epicgames.com/store/en-US/product/grand-theft-auto-v/home"));
-        add(new PurchaseSite(3498, "http://store.steampowered.com/app/271590/"));
-        add(new PurchaseSite(3498, "https://marketplace.xbox.com/en-US/Product/GTA-V/66acd000-77fe-1000-9115-d802545408a7"));
-        add(new PurchaseSite(3498, "https://www.microsoft.com/en-us/store/p/grand-theft-auto-v/bpj686w6s0nh?cid=msft_web_chart"));
+        add(new PurchaseSite(3498, "https://store.playstation.com/en-us/product/UP1004-CUSA00419_00-GTAVDIGITALDOWNL", "Play Station Store"));
+        add(new PurchaseSite(3498, "https://www.epicgames.com/store/en-US/product/grand-theft-auto-v/home", "Epic Games"));
+        add(new PurchaseSite(3498, "http://store.steampowered.com/app/271590/", "STEAM"));
+        add(new PurchaseSite(3498, "https://marketplace.xbox.com/en-US/Product/GTA-V/66acd000-77fe-1000-9115-d802545408a7", "XBOX"));
+        add(new PurchaseSite(3498, "https://www.microsoft.com/en-us/store/p/grand-theft-auto-v/bpj686w6s0nh?cid=msft_web_chart", "Microsoft"));
     }};
 
     List<Trailer> expectedTrailers = new ArrayList<>() {{
@@ -161,7 +161,7 @@ class JunitTestRAWG {
         List<PurchaseSite> actualPurchaseSites = new ArrayList<>();
         for(int i = 0; i < purchaseSites.length(); i++) {
             JSONObject purchaseSite = purchaseSites.getJSONObject(i);
-            actualPurchaseSites.add(new PurchaseSite(purchaseSite.getInt("gameId"), purchaseSite.getString("site")));
+            actualPurchaseSites.add(new PurchaseSite(purchaseSite.getInt("gameId"), purchaseSite.getString("site"), purchaseSite.getString("vendor")));
         }
         gameInfo.setPurchaseSites(actualPurchaseSites);
 
