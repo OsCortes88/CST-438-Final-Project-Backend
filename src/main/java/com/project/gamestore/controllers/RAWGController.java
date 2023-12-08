@@ -33,7 +33,7 @@ import java.util.List;
 public class RAWGController {
     @Autowired
     GenreRepository genreRepository;
-    private final String key = "79fc5d7fcd144b99ade6f0aafc6e8c74";
+    private final String key = "eb7f9ac03b794ab6b25ae38079f47a4c";
     private RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/videogames/{size}/{page}")
     // TODO: Add login verfication using JWT prinipal
@@ -68,7 +68,7 @@ public class RAWGController {
         // Process title.
         processTitle(title);
 
-        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
+        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=" + key;
 
         // Call the RAWG API to get a certain number of games.
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -193,16 +193,24 @@ public class RAWGController {
         return vendors;
     }
   
-    @GetMapping("/videogames/genre")
+    @GetMapping("/videogames/{size}/{page}/{genres}")
     // TODO: Test for listGamesByGenre
-    public List<VideoGame> listGamesByGenre(
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "") String sortBy,
-            @RequestParam String genres
-    ) throws JsonProcessingException {
+    public List<VideoGame> listGamesByGenre(@PathVariable("size") Integer pageSize,
+                                            @PathVariable("page") Integer pageNum,
+                                            @PathVariable("genres") List<String> genres) throws JsonProcessingException {
         // Call the RAWG API to get a certain number of games for a specific genre
+        // Combine list of genres to a string that separates each genre with just a comma in between
+        StringBuilder combinedGenres = new StringBuilder();
+        for (String genre: genres) {
+            combinedGenres.append(genre).append(",");
+        }
+        // Remove unneeded last comma.
+        combinedGenres = new StringBuilder(combinedGenres.substring(0, combinedGenres.length() - 1));
+        System.out.println(combinedGenres);
+        
+        
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&page=" + pageNum + "&genres=" + combinedGenres + "&key=" + key,
                 String.class);
         String jsonString = response.getBody();
 
