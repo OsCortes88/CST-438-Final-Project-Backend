@@ -33,7 +33,7 @@ import java.util.List;
 public class RAWGController {
     @Autowired
     GenreRepository genreRepository;
-    private final String key = "79fc5d7fcd144b99ade6f0aafc6e8c74";
+    private final String key = "eb7f9ac03b794ab6b25ae38079f47a4c";
     private RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/videogames/{size}/{page}")
     // TODO: Add login verfication using JWT prinipal
@@ -67,7 +67,7 @@ public class RAWGController {
         // Process title.
         processTitle(title);
 
-        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=79fc5d7fcd144b99ade6f0aafc6e8c74";
+        String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=" + key;
 
         // Call the RAWG API to get a certain number of games.
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -187,9 +187,26 @@ public class RAWGController {
         List<PurchaseSite> vendors = new ArrayList<>();
         for (int i = 0; i < vendorList.size(); i++) {
             JsonNode vendorSite = vendorList.get(i).get("url");
-            vendors.add(new PurchaseSite(gameId, vendorSite.asText()));
+            String vendor = getVendorName(vendorList.get(i).get("store_id").asInt());
+            vendors.add(new PurchaseSite(gameId, vendorSite.asText(), vendor));
+            System.out.println(vendors.get(i).getVendor());
         }
         return vendors;
+    }
+
+    public String getVendorName(int storeId) throws JsonProcessingException {
+        String url = "https://api.rawg.io/api/stores/" + storeId +  "?key=" + key;
+        // Call the RAWG API to get game details
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                url,
+                String.class);
+        // Get the json response
+        String jsonString = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readValue(jsonString, JsonNode.class);
+
+        JsonNode vendorName = rootNode.get("name");
+        return vendorName.asText();
     }
   
     @GetMapping("/videogames/genre")
@@ -201,7 +218,7 @@ public class RAWGController {
     ) throws JsonProcessingException {
         // Call the RAWG API to get a certain number of games for a specific genre
         ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=79fc5d7fcd144b99ade6f0aafc6e8c74",
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=" + key,
                 String.class);
         String jsonString = response.getBody();
 

@@ -1,5 +1,7 @@
 package com.project.gamestore.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,15 +14,19 @@ public class PurchaseSite {
     @Column(name = "gameID")
     private int gameId;
     private String site;
+    @JsonProperty("vendor")
+    private String vendor;
 
     public PurchaseSite() {
         this.gameId = 0;
         this.site = "";
+        this.vendor = "";
     }
 
-    public PurchaseSite(int gameId, String site) {
+    public PurchaseSite(int gameId, String site, String vendor) {
         this.gameId = gameId;
         this.site = site;
+        this.vendor = vendor;
     }
 
     public int getGameId() {
@@ -37,5 +43,13 @@ public class PurchaseSite {
 
     public void setSite(String site) {
         this.site = site;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
     }
 }
