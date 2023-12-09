@@ -9,6 +9,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SystemTestGamestore {
     // HARDCODE CHROME_DRIVER_PATH
@@ -31,6 +32,57 @@ public class SystemTestGamestore {
         Thread.sleep(SLEEP_DURATION);
     }
 
+    // TODO: test sign-up user interface
+    @Test
+    public void signUpFail() throws Exception {
+        String email = "test@csumb.edu";
+        String firstName = "John";
+        String lastName = "Doe";
+        String password = "end2end";
+
+        WebElement emailField = driver.findElement(By.name("username"));
+        WebElement firstNameField = driver.findElement(By.name("firstName"));
+        WebElement lastNameField = driver.findElement(By.name("lastName"));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement signUpButton = driver.findElement(By.id("submit_btn"));
+
+        emailField.sendKeys(email);
+        firstNameField.sendKeys(firstName);
+        lastNameField.sendKeys(lastName);
+        passwordField.sendKeys(password);
+
+        signUpButton.click();
+        Thread.sleep(SLEEP_DURATION);
+
+        WebElement userExistsMessage = driver.findElement(By.className("user-exists-message"));
+        assertTrue(userExistsMessage.isDisplayed());
+
+    }
+    @Test
+    public void signUp() throws Exception {
+        String email = "test1@csumb.edu";
+        String firstName = "John";
+        String lastName = "Doe";
+        String password = "end2end";
+
+        WebElement emailField = driver.findElement(By.name("username"));
+        WebElement firstNameField = driver.findElement(By.name("firstName"));
+        WebElement lastNameField = driver.findElement(By.name("lastName"));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement signUpButton = driver.findElement(By.id("submit_btn"));
+
+        emailField.sendKeys(email);
+        firstNameField.sendKeys(firstName);
+        lastNameField.sendKeys(lastName);
+        passwordField.sendKeys(password);
+
+        signUpButton.click();
+        Thread.sleep(SLEEP_DURATION);
+
+        assertEquals(driver.getTitle(), "Gamestore - Login");
+    }
+
+
     @Test
     public void login() throws Exception {
         // Test hardcoded user
@@ -49,8 +101,6 @@ public class SystemTestGamestore {
         // A successful login will redirect user to main page
         assertEquals(driver.getTitle(), "Gamestore - Main Page");
     }
-
-    // TODO: test sign-up user interface
 
     // TODO: test add-to-cart buttons
 
