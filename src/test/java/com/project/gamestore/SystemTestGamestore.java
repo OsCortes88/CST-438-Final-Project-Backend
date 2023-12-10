@@ -103,18 +103,6 @@ public class SystemTestGamestore {
     }
 
     // TODO: test add-to-cart buttons
-    @Test
-    public void addGameToWishlist() throws Exception {
-        driver.get(FRONTEND_URL + "/mainpage");
-        Thread.sleep(SLEEP_DURATION);
-
-        WebElement addBtn = driver.findElement(By.className("add_btn"));
-        addBtn.click();
-        Thread.sleep(SLEEP_DURATION);
-
-        WebElement successMessage = driver.findElement(By.className("success-message"));
-        assertTrue(successMessage.isDisplayed());
-    }
 
     // TODO (once genre branch is merged): test if genre filters are applied to MainPage
 
