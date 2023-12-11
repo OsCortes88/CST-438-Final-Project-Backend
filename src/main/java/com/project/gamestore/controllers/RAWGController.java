@@ -193,7 +193,7 @@ public class RAWGController {
         return vendors;
     }
   
-    @GetMapping("/videogames/{size}/{page}/{genres}")
+    @GetMapping("/videogames-by-genre/{size}/{page}/{genres}")
     // TODO: Test for listGamesByGenre
     public List<VideoGame> listGamesByGenre(@PathVariable("size") Integer pageSize,
                                             @PathVariable("page") Integer pageNum,
