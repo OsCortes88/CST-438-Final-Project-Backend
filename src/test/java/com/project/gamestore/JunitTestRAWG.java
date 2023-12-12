@@ -5,8 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamestore.controllers.RAWGController;
 import com.project.gamestore.domain.*;
+import com.project.gamestore.dto.AccountCredentials;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.project.gamestore.TestUtils.asJsonString;
 import static com.project.gamestore.TestUtils.fromJsonString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,11 +36,11 @@ class JunitTestRAWG {
     private RAWGController rawg = new RAWGController();
 
     public List<PurchaseSite> expectedPurchaseSites = new ArrayList<>() {{
-        add(new PurchaseSite(3498, "https://store.playstation.com/en-us/product/UP1004-CUSA00419_00-GTAVDIGITALDOWNL"));
-        add(new PurchaseSite(3498, "https://www.epicgames.com/store/en-US/product/grand-theft-auto-v/home"));
-        add(new PurchaseSite(3498, "http://store.steampowered.com/app/271590/"));
-        add(new PurchaseSite(3498, "https://marketplace.xbox.com/en-US/Product/GTA-V/66acd000-77fe-1000-9115-d802545408a7"));
-        add(new PurchaseSite(3498, "https://www.microsoft.com/en-us/store/p/grand-theft-auto-v/bpj686w6s0nh?cid=msft_web_chart"));
+        add(new PurchaseSite(3498, "https://store.playstation.com/en-us/product/UP1004-CUSA00419_00-GTAVDIGITALDOWNL", "PlayStation Store"));
+        add(new PurchaseSite(3498, "https://www.epicgames.com/store/en-US/product/grand-theft-auto-v/home", "Epic Games"));
+        add(new PurchaseSite(3498, "http://store.steampowered.com/app/271590/", "Steam"));
+        add(new PurchaseSite(3498, "https://marketplace.xbox.com/en-US/Product/GTA-V/66acd000-77fe-1000-9115-d802545408a7", "Xbox 360 Store"));
+        add(new PurchaseSite(3498, "https://www.microsoft.com/en-us/store/p/grand-theft-auto-v/bpj686w6s0nh?cid=msft_web_chart", "Xbox Store"));
     }};
 
     List<Trailer> expectedTrailers = new ArrayList<>() {{
@@ -60,7 +63,19 @@ class JunitTestRAWG {
         add(new Screenshot(3498, "https://media.rawg.io/media/screenshots/592/592e2501d8734b802b2a34fee2df59fa.jpg"));
     }};
 
+    AccountCredentials testCredentials = new AccountCredentials("test@csumb.edu", "user");
+    MockHttpServletResponse loginResponse;
 
+    @BeforeEach
+    public void LogIn() throws Exception {
+        loginResponse = mvc.perform(
+                        MockMvcRequestBuilders
+                                .post("/login")
+                                .content(asJsonString(testCredentials))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse();
+    }
 
     @Test
     public void TestListGenres() throws Exception {
@@ -70,6 +85,7 @@ class JunitTestRAWG {
         response = mvc.perform(
                 MockMvcRequestBuilders
                         .get("/genre-list")
+                        .header("Authorization", loginResponse.getHeader("Authorization"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
@@ -125,6 +141,7 @@ class JunitTestRAWG {
         response = mvc.perform(
                 MockMvcRequestBuilders
                         .get("/videogame-info/3498")
+                        .header("Authorization", loginResponse.getHeader("Authorization"))
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 
@@ -161,7 +178,7 @@ class JunitTestRAWG {
         List<PurchaseSite> actualPurchaseSites = new ArrayList<>();
         for(int i = 0; i < purchaseSites.length(); i++) {
             JSONObject purchaseSite = purchaseSites.getJSONObject(i);
-            actualPurchaseSites.add(new PurchaseSite(purchaseSite.getInt("gameId"), purchaseSite.getString("site")));
+            actualPurchaseSites.add(new PurchaseSite(purchaseSite.getInt("gameId"), purchaseSite.getString("site"), purchaseSite.getString("vendor")));
         }
         gameInfo.setPurchaseSites(actualPurchaseSites);
 
@@ -198,6 +215,7 @@ class JunitTestRAWG {
         for(int i = 0; i < expectedPurchaseSites.size(); i ++) {
             assertEquals(expectedPurchaseSites.get(i).getGameId(), gameInfo.getPurchaseSites().get(i).getGameId());
             assertEquals(expectedPurchaseSites.get(i).getSite(), gameInfo.getPurchaseSites().get(i).getSite());
+            assertEquals(expectedPurchaseSites.get(i).getVendor(), gameInfo.getPurchaseSites().get(i).getVendor());
         }
     }
 
@@ -209,6 +227,7 @@ class JunitTestRAWG {
         response = mvc.perform(
                         MockMvcRequestBuilders
                                 .get("/videogames/10/1")
+                                .header("Authorization", loginResponse.getHeader("Authorization"))
                                 .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
 

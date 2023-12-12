@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 public class WishListController {
-    private RestTemplate restTemplate = new RestTemplate();
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -26,9 +25,6 @@ public class WishListController {
         // Get the video game data from the RAWGController
         User user = userRepository.findByEmail(principal.getName());
         if(wishListRepository.findByGameId((int) user.getId(), gameInfo.id()) == null) {
-//            VideoGameDTO response = restTemplate.getForObject(
-//                    "http://localhost:8080/videogame-info/" + gameID,
-//                        VideoGameDTO.class);
             // Set video game info and store it in videogame table
             VideoGame game = new VideoGame();
             game.setId(gameInfo.id());
@@ -60,6 +56,7 @@ public class WishListController {
         User user = userRepository.findByEmail(principal.getName());
         if (wishListRepository.findByGameId((int) user.getId(), gameId) != null) {
             wishListRepository.deleteByGameId((int) user.getId(), gameId);
+
             return true;
         } else {
             throw new Exception("wishlist item not found");
@@ -69,10 +66,7 @@ public class WishListController {
     @GetMapping("/wishlist")
     public List<WishListItem> getItemsInUserWishList(Principal principal) {
         User userInfo = userRepository.findByEmail(principal.getName());
-        System.out.println(userInfo);
-        System.out.println("" + wishListRepository.findAll());
         List<WishListItem> userWishList = wishListRepository.findUsersWishList((int) userInfo.getId());
         return userWishList;
     }
-
 }
