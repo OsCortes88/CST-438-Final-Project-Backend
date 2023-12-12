@@ -12,7 +12,6 @@ import java.util.List;
 
 @RestController
 public class WishListController {
-    private RestTemplate restTemplate = new RestTemplate();
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -20,26 +19,12 @@ public class WishListController {
     @Autowired
     VideoGameRepository videoGameRepository;
 
-
-//     @PutMapping("/add-game/{userID}/{gameID}")
-//     public boolean addGameToWishList(@PathVariable("userID") Integer userId,
-//                                      @PathVariable("gameID") Integer gameID) throws Exception {
-//         // Get the video game data from the RAWGController
-//         if(wishListRepository.findByGameId(gameID) == null) {
-//             VideoGameDTO response = restTemplate.getForObject(
-//                     "http://localhost:8080/videogame-info/" + gameID,
-//                     VideoGameDTO.class);
-
     @PutMapping("/add-game/{gameID}")
     public boolean addGameToWishList(Principal principal,
                                      @RequestBody VideoGameDTO gameInfo) throws Exception {
         // Get the video game data from the RAWGController
         User user = userRepository.findByEmail(principal.getName());
         if(wishListRepository.findByGameId((int) user.getId(), gameInfo.id()) == null) {
-//            VideoGameDTO response = restTemplate.getForObject(
-//                    "http://localhost:8080/videogame-info/" + gameID,
-//                        VideoGameDTO.class);
-
             // Set video game info and store it in videogame table
             VideoGame game = new VideoGame();
             game.setId(gameInfo.id());
@@ -65,13 +50,6 @@ public class WishListController {
         }
     }
 
-
-//     @DeleteMapping("/delete-game/{userId}/{gameId}")
-//     public boolean deleteGameFromWishlist(@PathVariable("userId") Integer userId,
-//                                           @PathVariable("gameId") Integer gameId) throws Exception {
-//         if (wishListRepository.findByGameId(gameId) != null) {
-//             wishListRepository.deleteByGameId(gameId);
-
     @DeleteMapping("/delete-game/{gameId}")
     public boolean deleteGameFromWishlist(Principal principal,
                                        @PathVariable("gameId") Integer gameId) throws Exception {
@@ -88,8 +66,6 @@ public class WishListController {
     @GetMapping("/wishlist")
     public List<WishListItem> getItemsInUserWishList(Principal principal) {
         User userInfo = userRepository.findByEmail(principal.getName());
-        System.out.println(userInfo);
-        System.out.println("" + wishListRepository.findAll());
         List<WishListItem> userWishList = wishListRepository.findUsersWishList((int) userInfo.getId());
         return userWishList;
     }
