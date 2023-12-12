@@ -35,8 +35,13 @@ public class RAWGController {
     GenreRepository genreRepository;
     private final String key = "eb7f9ac03b794ab6b25ae38079f47a4c";
     private RestTemplate restTemplate = new RestTemplate();
+
+    @GetMapping("/genre-list")
+    public  List<Genre> getGenres() {
+        return  genreRepository.getGenresByPopularity();
+    }
+
     @GetMapping("/videogames/{size}/{page}")
-    // TODO: Add login verfication using JWT prinipal
     public List<VideoGame> ListGames(Principal principal, @PathVariable("size") Integer size,
                                      @PathVariable("page") Integer page) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games?page_size=" + size +  "&page=" + page + "&key=" + key;
@@ -54,17 +59,10 @@ public class RAWGController {
         return games;
     }
 
-
-    // Helper method to process search title's for API call
-    public void processTitle(String title) {
-        title = title.replace(' ', '-');
-    }
-
     @GetMapping("/videogames/search/{title}/{size}/{page}")
     public List<VideoGame> ListGamesByName(@PathVariable("title") String title,
                                            @PathVariable("size") Integer size,
                                            @PathVariable("page") Integer page) throws JsonProcessingException {
-        // Process title.
         processTitle(title);
 
         String url = "https://api.rawg.io/api/games?search=" + title + "&page_size=" + size + "&page=" + page + "&exclude_additions=true&key=" + key;
@@ -103,8 +101,26 @@ public class RAWGController {
         return games;
     }
 
+    @GetMapping("/videogames/genre")
+    public List<VideoGame> listGamesByGenre(
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "") String sortBy,
+            @RequestParam String genres
+    ) throws JsonProcessingException {
+        // Call the RAWG API to get a certain number of games for a specific genre
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=" + key,
+                String.class);
+        String jsonString = response.getBody();
+
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_in_genre;
+    }
+
     @GetMapping("/videogame-info/{gameId}")
-    // TODO: Add login verfication using JWT prinipal
     public VideoGame gameInfo(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "?key=" + key;
         // Call the RAWG API to get game details
@@ -124,12 +140,6 @@ public class RAWGController {
         game.setTrailers(trailers);
         game.setPurchaseSites(getVendors(gameId));
         return game;
-    }
-
-    @GetMapping("/genre-list")
-    // TODO: Add login verfication using JWT prinipal
-    public  List<Genre> getGenres() {
-        return  genreRepository.getGenresByPopularity();
     }
 
     public List<Screenshot> getGameScreenShots(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
@@ -189,7 +199,6 @@ public class RAWGController {
             JsonNode vendorSite = vendorList.get(i).get("url");
             String vendor = getVendorName(vendorList.get(i).get("store_id").asInt());
             vendors.add(new PurchaseSite(gameId, vendorSite.asText(), vendor));
-            System.out.println(vendors.get(i).getVendor());
         }
         return vendors;
     }
@@ -208,24 +217,8 @@ public class RAWGController {
         JsonNode vendorName = rootNode.get("name");
         return vendorName.asText();
     }
-  
-    @GetMapping("/videogames/genre")
-    // TODO: Test for listGamesByGenre
-    public List<VideoGame> listGamesByGenre(
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "") String sortBy,
-            @RequestParam String genres
-    ) throws JsonProcessingException {
-        // Call the RAWG API to get a certain number of games for a specific genre
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=" + key,
-                String.class);
-        String jsonString = response.getBody();
 
-        JSONObject json = new JSONObject(jsonString);
-        JSONArray gamesList = json.getJSONArray("results");
-
-        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-        return games_in_genre;
+    public void processTitle(String title) {
+        title = title.replace(' ', '-');
     }
 }
