@@ -101,25 +101,6 @@ public class RAWGController {
         return games;
     }
 
-    @GetMapping("/videogames/genre")
-    public List<VideoGame> listGamesByGenre(
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "") String sortBy,
-            @RequestParam String genres
-    ) throws JsonProcessingException {
-        // Call the RAWG API to get a certain number of games for a specific genre
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                "https://api.rawg.io/api/games?page_size=" + pageSize + "&genres=" + genres + "&key=" + key,
-                String.class);
-        String jsonString = response.getBody();
-
-        JSONObject json = new JSONObject(jsonString);
-        JSONArray gamesList = json.getJSONArray("results");
-
-        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
-        return games_in_genre;
-    }
-
     @GetMapping("/videogame-info/{gameId}")
     public VideoGame gameInfo(@PathVariable("gameId") Integer gameId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/games/" + gameId +  "?key=" + key;
@@ -204,7 +185,6 @@ public class RAWGController {
     }
   
     @GetMapping("/videogames-by-genre/{size}/{page}/{genres}")
-    // TODO: Test for listGamesByGenre
     public List<VideoGame> listGamesByGenre(@PathVariable("size") Integer pageSize,
                                             @PathVariable("page") Integer pageNum,
                                             @PathVariable("genres") List<String> genres) throws JsonProcessingException {
