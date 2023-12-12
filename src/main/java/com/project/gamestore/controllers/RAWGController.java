@@ -202,6 +202,34 @@ public class RAWGController {
         }
         return vendors;
     }
+  
+    @GetMapping("/videogames-by-genre/{size}/{page}/{genres}")
+    // TODO: Test for listGamesByGenre
+    public List<VideoGame> listGamesByGenre(@PathVariable("size") Integer pageSize,
+                                            @PathVariable("page") Integer pageNum,
+                                            @PathVariable("genres") List<String> genres) throws JsonProcessingException {
+        // Call the RAWG API to get a certain number of games for a specific genre
+        // Combine list of genres to a string that separates each genre with just a comma in between
+        StringBuilder combinedGenres = new StringBuilder();
+        for (String genre: genres) {
+            combinedGenres.append(genre).append(",");
+        }
+        // Remove unneeded last comma.
+        combinedGenres = new StringBuilder(combinedGenres.substring(0, combinedGenres.length() - 1));
+        System.out.println(combinedGenres);
+        
+        
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                "https://api.rawg.io/api/games?page_size=" + pageSize + "&page=" + pageNum + "&genres=" + combinedGenres + "&key=" + key,
+                String.class);
+        String jsonString = response.getBody();
+
+        JSONObject json = new JSONObject(jsonString);
+        JSONArray gamesList = json.getJSONArray("results");
+
+        List<VideoGame> games_in_genre = new ObjectMapper().readValue(gamesList.toString(), new TypeReference<List<VideoGame>>() {});
+        return games_in_genre;
+    }
 
     public String getVendorName(int storeId) throws JsonProcessingException {
         String url = "https://api.rawg.io/api/stores/" + storeId +  "?key=" + key;
