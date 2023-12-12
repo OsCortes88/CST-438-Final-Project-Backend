@@ -2,15 +2,16 @@ package com.project.gamestore;
 
 import com.project.gamestore.domain.User;
 import com.project.gamestore.domain.UserRepository;
+import com.project.gamestore.dto.AccountCredentials;
 import com.project.gamestore.dto.UserInfo;
-import com.project.gamestore.dto.UserSignUp;
+import com.project.gamestore.service.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -27,7 +28,11 @@ public class JunitTestUser {
     @Autowired
     UserRepository userRepository;
 
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     User testUser = new User("Pablo", "Marmol", "test1@csumb.edu", "secret", "USER");
+
+    AccountCredentials testCredentials = new AccountCredentials("test1@csumb.edu", "secret");
 
     @Test
     public void TestInsertUser() throws Exception {
@@ -47,7 +52,7 @@ public class JunitTestUser {
         User actualUser =  userRepository.findByEmail("test1@csumb.edu");
         assertEquals(actualUser.getFirstName(), testUser.getFirstName());
         assertEquals(actualUser.getLastName(), testUser.getLastName());
-        assertEquals(actualUser.getPassword(), testUser.getPassword());
+        assertTrue(passwordEncoder.matches(testUser.getPassword(), actualUser.getPassword()));
         assertEquals(actualUser.getRole(), testUser.getRole());
 
         userRepository.deleteById(actualUser.getId());
@@ -86,9 +91,12 @@ public class JunitTestUser {
         assertEquals(200, response.getStatus());
         assertTrue(fromJsonString(response.getContentAsString(), Boolean.class));
 
+        JwtService jwtService = new JwtService();
+
         response = mvc.perform(
                 MockMvcRequestBuilders
-                        .get("/user/test1@csumb.edu")
+                        .get("/user")
+                        .header("Authorization", "Bearer " + jwtService.getToken("test1@csumb.edu"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse();
