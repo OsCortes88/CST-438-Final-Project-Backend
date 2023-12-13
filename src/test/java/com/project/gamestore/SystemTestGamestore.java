@@ -143,6 +143,29 @@ public class SystemTestGamestore {
     }
 
     @Test
+    public void logout() throws Exception {
+        // First login to main page with existing user
+        String email = "test@csumb.edu";
+        String password = "user";
+        WebElement emailField = driver.findElement(By.name("username"));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement loginButton = driver.findElement(By.id("submit_btn"));
+        emailField.sendKeys(email);
+        passwordField.sendKeys(password);
+        Thread.sleep(SLEEP_DURATION);
+        loginButton.click();
+        Thread.sleep(SLEEP_DURATION);
+        // A successful login will redirect user to main page
+        assertEquals("Gamestore - Main Page", driver.getTitle());
+        // Click on logout link
+        WebElement logoutLink = driver.findElement(By.id("logoutLink"));
+        logoutLink.click();
+        Thread.sleep(SLEEP_DURATION);
+        // Check that user gets sent back to login
+        assertEquals("Gamestore - Login", driver.getTitle());
+    }
+
+    @Test
     public void addGameToWishlist() throws Exception {
         // First login with existing user
         String email = "test@csumb.edu";
