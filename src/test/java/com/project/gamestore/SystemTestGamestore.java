@@ -16,7 +16,7 @@ public class SystemTestGamestore {
     public static final String ALIAS_NAME = "test";
     // Equivalent to 1 second
     public static final int SLEEP_DURATION = 1000;
-    public static final int LONGER_DURATION = 4000;
+    public static final int LONGER_DURATION = 5000;
 
     WebDriver driver;
 
@@ -189,7 +189,7 @@ public class SystemTestGamestore {
         WebElement addButton = driver.findElement(By.id("3498"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", addButton);
         // Allow for driver to scroll down
-        Thread.sleep(SLEEP_DURATION);
+        Thread.sleep(LONGER_DURATION);
         // Game is added
         addButton.click();
         // Check Wishlist
@@ -228,7 +228,7 @@ public class SystemTestGamestore {
         Thread.sleep(LONGER_DURATION);
         WebElement addButton = driver.findElement(By.id("3498"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", addButton);
-        Thread.sleep(SLEEP_DURATION);
+        Thread.sleep(LONGER_DURATION);
         addButton.click();
         // In wishlist, find game 3498 (Grand Theft Auto V) and delete it
         WebElement closeModal = driver.findElement(By.className("close"));
@@ -243,7 +243,7 @@ public class SystemTestGamestore {
         Thread.sleep(LONGER_DURATION);
         WebElement deleteButton = driver.findElement(By.name("submit"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", deleteButton);
-        Thread.sleep(SLEEP_DURATION);
+        Thread.sleep(LONGER_DURATION);
         deleteButton.click();
         Thread.sleep(SLEEP_DURATION);
         // Assert that no element of game 3498 is found after deletion.
