@@ -3,10 +3,7 @@ package com.project.gamestore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
@@ -65,6 +62,7 @@ public class SystemTestGamestore {
         assertEquals("Gamestore - Sign Up", driver.getTitle());
     }
 
+    // Test only passes with first iteration (can not signup again after user exists)
     @Test
     public void signUp() throws Exception {
         String email = "test4@csumb.edu";
@@ -165,6 +163,7 @@ public class SystemTestGamestore {
         assertEquals("Gamestore - Login", driver.getTitle());
     }
 
+    // Testing with first game in Featured Games (game 3498)
     @Test
     public void addGameToWishlist() throws Exception {
         // First login with existing user
@@ -178,7 +177,6 @@ public class SystemTestGamestore {
         Thread.sleep(SLEEP_DURATION);
         loginButton.click();
         Thread.sleep(SLEEP_DURATION);
-
         // Now that we are on MainPage, begin adding game to wishlist
         assertEquals("Gamestore - Main Page", driver.getTitle());
         // Allow for more time for unique key to be generated
@@ -194,7 +192,6 @@ public class SystemTestGamestore {
         Thread.sleep(SLEEP_DURATION);
         // Game is added
         addButton.click();
-
         // Check Wishlist
         WebElement closeModal = driver.findElement(By.className("close"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", closeModal);
@@ -210,8 +207,50 @@ public class SystemTestGamestore {
         assertNotNull(gameTitle);
     }
 
-    // TODO (once genre branch is merged): test if genre filters are applied to MainPage
+    @Test
+    public void deleteGameFromWishlist() throws Exception {
+        // First login with existing user
+        String email = "test@csumb.edu";
+        String password = "user";
+        WebElement emailField = driver.findElement(By.name("username"));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement loginButton = driver.findElement(By.id("submit_btn"));
+        emailField.sendKeys(email);
+        passwordField.sendKeys(password);
+        Thread.sleep(SLEEP_DURATION);
+        loginButton.click();
+        Thread.sleep(SLEEP_DURATION);
+        // Add game with id 3498
+        assertEquals("Gamestore - Main Page", driver.getTitle());
+        Thread.sleep(LONGER_DURATION);
+        WebElement clickOnGame = driver.findElement(By.id("img3498"));
+        clickOnGame.click();
+        Thread.sleep(LONGER_DURATION);
+        WebElement addButton = driver.findElement(By.id("3498"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", addButton);
+        Thread.sleep(SLEEP_DURATION);
+        addButton.click();
+        // In wishlist, find game 3498 (Grand Theft Auto V) and delete it
+        WebElement closeModal = driver.findElement(By.className("close"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", closeModal);
+        Thread.sleep(SLEEP_DURATION);
+        closeModal.click();
+        WebElement wishlsitLink = driver.findElement(By.id("wishlistLink"));
+        wishlsitLink.click();
+        Thread.sleep(SLEEP_DURATION);
+        WebElement wishlistGame = driver.findElement(By.id("Grand Theft Auto V"));
+        wishlistGame.click();
+        Thread.sleep(LONGER_DURATION);
+        WebElement deleteButton = driver.findElement(By.name("submit"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", deleteButton);
+        Thread.sleep(SLEEP_DURATION);
+        deleteButton.click();
+        Thread.sleep(SLEEP_DURATION);
+        // Assert that no element of game 3498 is found after deletion.
+        assertThrows(NoSuchElementException.class, () -> {driver.findElement(By.id("Grand Theft Auto V"));});
+    }
 
+    // TODO: addMultipleGamesToWishlist() <- Pick games from Other Games
 
     @AfterEach
     public void cleanup() {
