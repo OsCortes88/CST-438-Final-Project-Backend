@@ -10,8 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SystemTestGamestore {
-    // HARDCODE CHROME_DRIVER_PATH (Edgar's path)
-    public static final String CHROME_DRIVER_PATH = "/Users/edgarhernandez/Downloads/chromedriver-mac-arm64/chromedriver";
+    // HARDCODE CHROME_DRIVER_PATH BEFORE TESTING
+    public static final String CHROME_DRIVER_PATH = "";
     public static final String FRONTEND_URL = "http://localhost:3000";
     public static final String ALIAS_NAME = "test";
     // Equivalent to 1 second
@@ -249,8 +249,6 @@ public class SystemTestGamestore {
         // Assert that no element of game 3498 is found after deletion.
         assertThrows(NoSuchElementException.class, () -> {driver.findElement(By.id("Grand Theft Auto V"));});
     }
-
-    // TODO: addMultipleGamesToWishlist() <- Pick games from Other Games
 
     @AfterEach
     public void cleanup() {
