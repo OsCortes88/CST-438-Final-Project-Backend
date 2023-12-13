@@ -105,6 +105,25 @@ public class SystemTestGamestore {
     }
 
     @Test
+    public void badLogin() throws Exception {
+        // Test with non-registered user
+        String email = "dne@csumb.edu";
+        String password = "secret";
+        WebElement emailField = driver.findElement(By.name("username"));
+        WebElement passwordField = driver.findElement(By.name("password"));
+        WebElement loginButton = driver.findElement(By.id("submit_btn"));
+        // Send input
+        emailField.sendKeys(email);
+        passwordField.sendKeys(password);
+        Thread.sleep(SLEEP_DURATION);
+        // Click on login button
+        loginButton.click();
+        Thread.sleep(SLEEP_DURATION);
+        // User stays in Login page if login is unsuccessful
+        assertEquals("Gamestore - Login", driver.getTitle());
+    }
+
+    @Test
     public void login() throws Exception {
         // Test hardcoded user
         String email = "test@csumb.edu";
@@ -123,7 +142,6 @@ public class SystemTestGamestore {
         assertEquals("Gamestore - Main Page", driver.getTitle());
     }
 
-    // TODO: fix addGameToWishlist
     @Test
     public void addGameToWishlist() throws Exception {
         // First login with existing user
