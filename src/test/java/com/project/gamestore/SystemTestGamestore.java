@@ -4,12 +4,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SystemTestGamestore {
     // HARDCODE CHROME_DRIVER_PATH (Edgar's path)
@@ -18,6 +19,7 @@ public class SystemTestGamestore {
     public static final String ALIAS_NAME = "test";
     // Equivalent to 1 second
     public static final int SLEEP_DURATION = 1000;
+    public static final int LONGER_DURATION = 4000;
 
     WebDriver driver;
 
@@ -135,14 +137,36 @@ public class SystemTestGamestore {
         Thread.sleep(SLEEP_DURATION);
         loginButton.click();
         Thread.sleep(SLEEP_DURATION);
+
+        // Now that we are on MainPage, begin adding game to wishlist
         assertEquals("Gamestore - Main Page", driver.getTitle());
-
-        WebElement addBtn = driver.findElement(By.className("add_btn"));
-        addBtn.click();
+        // Allow for more time for unique key to be generated
+        Thread.sleep(LONGER_DURATION);
+        // Grabbing img and addButton from first featured game (w/ id 3498)
+        WebElement clickOnGame = driver.findElement(By.id("img3498"));
+        clickOnGame.click();
+        // Allow for unique button id to be generated.
+        Thread.sleep(LONGER_DURATION);
+        WebElement addButton = driver.findElement(By.id("3498"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", addButton);
+        // Allow for driver to scroll down
         Thread.sleep(SLEEP_DURATION);
+        // Game is added
+        addButton.click();
 
-        WebElement successMessage = driver.findElement(By.className("success-message"));
-        assertTrue(successMessage.isDisplayed());
+        // Check Wishlist
+        WebElement closeModal = driver.findElement(By.className("close"));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", closeModal);
+        // Allow for driver to scroll up
+        Thread.sleep(SLEEP_DURATION);
+        closeModal.click();
+        WebElement wishlsitLink = driver.findElement(By.id("wishlistLink"));
+        wishlsitLink.click();
+        Thread.sleep(SLEEP_DURATION);
+        // In wishlist there should be game 3498 (Grand Theft Auto V).
+        WebElement gameTitle = driver.findElement(By.id("Grand Theft Auto V"));
+        // gameTitle should not be null.
+        assertNotNull(gameTitle);
     }
 
     // TODO (once genre branch is merged): test if genre filters are applied to MainPage
